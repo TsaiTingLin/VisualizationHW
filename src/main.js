@@ -1,32 +1,55 @@
-//TIP With Search Everywhere, you can find any action, file, or symbol in your project. Press <shortcut actionId="Shift"/> <shortcut actionId="Shift"/>, type in <b>terminal</b>, and press <shortcut actionId="EditorEnter"/>. Then run <shortcut raw="npm run dev"/> in the terminal and click the link in its output to open the app in the browser.
-export function setupCounter(element) {
-  //TIP Try <shortcut actionId="GotoDeclaration"/> on <shortcut raw="counter"/> to see its usages. You can also use this shortcut to jump to a declaration – try it on <shortcut raw="counter"/> on line 13.
-  let counter = 0;
+import * as d3 from 'd3';
 
-  const adjustCounterValue = value => {
-    if (value >= 100) return value - 100;
-    if (value <= -100) return value + 100;
-    return value;
-  };
+// Sample data
+const data = [
+  {name: "A", value: 5},
+  {name: "B", value: 10},
+  {name: "C", value: 15},
+  {name: "D", value: 20},
+  {name: "E", value: 25}
+];
 
-  const setCounter = value => {
-    counter = adjustCounterValue(value);
-    //TIP WebStorm has lots of inspections to help you catch issues in your project. It also has quick fixes to help you resolve them. Press <shortcut actionId="ShowIntentionActions"/> on <shortcut raw="text"/> and choose <b>Inline variable</b> to clean up the redundant code.
-    const text = `${counter}`;
-    element.innerHTML = text;
-  };
+// Set dimensions and margins
+const margin = {top: 20, right: 20, bottom: 30, left: 40};
+const width = 600 - margin.left - margin.right;
+const height = 400 - margin.top - margin.bottom;
 
-  document.getElementById('increaseByOne').addEventListener('click', () => setCounter(counter + 1));
-  document.getElementById('decreaseByOne').addEventListener('click', () => setCounter(counter - 1));
-  document.getElementById('increaseByTwo').addEventListener('click', () => setCounter(counter + 2));
-  //TIP In the app running in the browser, you’ll find that clicking <b>-2</b> doesn't work. To fix that, rewrite it using the code from lines 19 - 21 as examples of the logic.
-  document.getElementById('decreaseByTwo')
+// Create SVG
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  //TIP Let’s see how to review and commit your changes. Press <shortcut actionId="GotoAction"/> and look for <b>commit</b>. Try checking the diff for a file – double-click main.js to do that.
-  setCounter(0);
-}
+// Create scales
+const x = d3.scaleBand()
+  .domain(data.map(d => d.name))
+  .range([0, width])
+  .padding(0.1);
 
-//TIP To find text strings in your project, you can use the <shortcut actionId="FindInPath"/> shortcut. Press it and type in <b>counter</b> – you’ll get all matches in one place.
-setupCounter(document.getElementById('counter-value'));
+const y = d3.scaleLinear()
+  .domain([0, d3.max(data, d => d.value)])
+  .nice()
+  .range([height, 0]);
 
-//TIP There's much more in WebStorm to help you be more productive. Press <shortcut actionId="Shift"/> <shortcut actionId="Shift"/> and search for <b>Learn WebStorm</b> to open our learning hub with more things for you to try.
+// Add x-axis
+svg.append("g")
+  .attr("class", "axis")
+  .attr("transform", `translate(0,${height})`)
+  .call(d3.axisBottom(x));
+
+// Add y-axis
+svg.append("g")
+  .attr("class", "axis")
+  .call(d3.axisLeft(y));
+
+// Add bars
+svg.selectAll(".bar")
+  .data(data)
+  .enter().append("rect")
+  .attr("class", "bar")
+  .attr("x", d => x(d.name))
+  .attr("y", d => y(d.value))
+  .attr("width", x.bandwidth())
+  .attr("height", d => height - y(d.value));
