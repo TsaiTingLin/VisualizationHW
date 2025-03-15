@@ -1,18 +1,9 @@
 import * as d3 from 'd3';
 
-// Sample data
-const data = [
-  {name: "A", value: 5},
-  {name: "B", value: 10},
-  {name: "C", value: 15},
-  {name: "D", value: 20},
-  {name: "E", value: 25}
-];
-
 // Set dimensions and margins
-const margin = {top: 20, right: 20, bottom: 30, left: 40};
-const width = 600 - margin.left - margin.right;
-const height = 400 - margin.top - margin.bottom;
+const margin = {top: 20, right: 20, bottom: 30, left: 300};
+const width = 800 - margin.left - margin.right;
+const height = 500 - margin.top - margin.bottom;
 
 // Create SVG
 const svg = d3.select("#chart")
@@ -22,34 +13,68 @@ const svg = d3.select("#chart")
   .append("g")
   .attr("transform", `translate(${margin.left},${margin.top})`);
 
-// Create scales
-const x = d3.scaleBand()
-  .domain(data.map(d => d.name))
-  .range([0, width])
-  .padding(0.1);
+// Fetch JSON data
+fetch('https://coscup.org/2024/json/session.json')
+  .then(response => response.json())
+  .then(data => {
+    const sessions = data.sessions;
+    const sessionTypes = data.session_types;
 
-const y = d3.scaleLinear()
-  .domain([0, d3.max(data, d => d.value)])
-  .nice()
-  .range([height, 0]);
+    // Create a map of type ID to zh name
+    const typeMap = new Map(sessionTypes.map(type => [type.id, type.zh.name]));
 
-// Add x-axis
-svg.append("g")
-  .attr("class", "axis")
-  .attr("transform", `translate(0,${height})`)
-  .call(d3.axisBottom(x));
+    // Count occurrences of each type
+    const typeCounts = d3.rollup(sessions, v => v.length, d => d.type);
+    const typeData = Array.from(typeCounts, ([type, count]) => ({
+      type: typeMap.get(type),
+      count
+    }));
 
-// Add y-axis
-svg.append("g")
-  .attr("class", "axis")
-  .call(d3.axisLeft(y));
+    // Sort data by count in descending order
+    typeData.sort((a, b) => b.count - a.count);
 
-// Add bars
-svg.selectAll(".bar")
-  .data(data)
-  .enter().append("rect")
-  .attr("class", "bar")
-  .attr("x", d => x(d.name))
-  .attr("y", d => y(d.value))
-  .attr("width", x.bandwidth())
-  .attr("height", d => height - y(d.value));
+    // Create scales
+    const y = d3.scaleBand()
+      .domain(typeData.map(d => d.type))
+      .range([0, height])
+      .padding(0.2); // Increase spacing between bars
+
+    const x = d3.scaleLinear()
+      .domain([0, d3.max(typeData, d => d.count)])
+      .nice()
+      .range([0, width]);
+
+    // Add y-axis
+    svg.append("g")
+      .attr("class", "axis")
+      .call(d3.axisLeft(y));
+
+    // Add x-axis
+    svg.append("g")
+      .attr("class", "axis")
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(x));
+
+    // Add bars
+    svg.selectAll(".bar")
+      .data(typeData)
+      .enter().append("rect")
+      .attr("class", "bar")
+      .attr("y", d => y(d.type))
+      .attr("x", 0)
+      .attr("height", y.bandwidth())
+      .attr("width", d => x(d.count));
+
+
+    // Add count labels to the right of the top three bars
+    svg.selectAll(".label")
+      .data(typeData.slice(0, 1))
+      .enter().append("text")
+      .attr("class", "label")
+      .attr("x", d => x(d.count) + 5)
+      .attr("y", d => y(d.type) + y.bandwidth() / 2)
+      .attr("dy", ".35em")
+      .text(d => d.count);
+
+  })
+  .catch(error => console.error('Error loading JSON:', error));
