@@ -1,25 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Session Types Distribution for COSCUP 2024</title>
   <style>
+      body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          margin: 20px;
+          padding: 20px;
+      }
+      h1, h2, h3 {
+          color: #333;
+      }
+      h1 {
+          border-bottom: 2px solid #333;
+          padding-bottom: 10px;
+      }
+      h3 {
+          margin-top: 20px;
+      }
+      ul {
+          padding-left: 20px;
+      }
+      .container {
+          max-width: 800px;
+          margin: auto;
+      }
       .bar {
           fill: steelblue;
       }
       .bar:hover {
-          fill: #45a049;
+          fill: #f57c00;
+      }
+      #chart {
+          margin-top: 20px;
       }
   </style>
 </head>
 <body>
-<h1>Session Types Distribution for COSCUP 2024</h1>
-<h4>COSCUP 2024 各開源社群議程數</h4>
-<div id="chart"></div>
+<div class="container">
+  <h1>COSCUP 2024 開源社群議程數視覺化</h1>
+  <p><strong>COSCUP</strong> 是台灣最大且歷史最悠久的開源技術年會，自 2006 年舉辦至今，每年吸引大量開發者參與。</p>
+  <p>本專案使用 <strong>D3.js</strong> 來視覺化 <strong>COSCUP 2024</strong> 各開源社群的議程數量分佈，透過長條圖呈現各社群的議程數，並按數量降序排列，幫助觀察不同社群的活躍度。</p>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-<script src="/src/main.js"></script>
+  <h2>What</h2>
+  <ul>
+    <li><strong>數據來源：</strong> COSCUP 2024 議程 JSON</li>
+    <li><strong>數據類型：</strong> 社群名稱與對應的議程數量</li>
+    <li><strong>視覺化方式：</strong> 長條圖，每個社群的議程數以條形寬度表達</li>
+  </ul>
 
+  <h2>Why</h2>
+  <ul>
+    <li>幫助識別最活躍的開源社群</li>
+    <li>提供社群參與度與技術趨勢的洞察</li>
+    <li>讓社群組織者與參與者更好地理解 COSCUP 2024 的議程分佈</li>
+  </ul>
+
+  <h2>How</h2>
+  <ul>
+    <li><strong>視覺編碼：</strong> X 軸為議程數量，Y 軸為社群名稱</li>
+    <li><strong>互動方式：</strong></li>
+    <ul>
+      <li>滑鼠懸停（hover）時高亮：條形與社群名稱變為橙色</li>
+      <li>標示頂部社群的議程數以強調最活躍的社群</li>
+    </ul>
+    <li>圖表展現 COSCUP 2024 各社群的貢獻度，讓開發者與社群成員能夠快速掌握技術趨勢和社群活力。</li>
+  </ul>
+
+  <h2>視覺化圖表</h2>
+  <h4>COSCUP 2024 各開源社群議程數</h4>
+  <div id="chart"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="/src/main.js"></script>
+</div>
 </body>
 </html>
