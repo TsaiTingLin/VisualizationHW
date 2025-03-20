@@ -1,5 +1,3 @@
-import * as d3 from 'd3';
-
 // Set dimensions and margins
 const margin = {top: 20, right: 20, bottom: 30, left: 300};
 const width = 800 - margin.left - margin.right;
